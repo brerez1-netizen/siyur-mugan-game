@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>פרומפטים לסיור בבניין המוגן</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&family=Assistant:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#f3f1ec; --surface:#fffdf9; --code:#1d2328; --code-ink:#e8edf0;
+  --ink:#1c2226; --dim:#5f6b73; --line:#dcd8cf; --line-2:#c4bfb3;
+  --accent:#a86f0c; --ok:#2f6b44; --ok-bg:#dcebe0; --todo:#8a5a14; --todo-bg:#f3e7cd;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141a1f; --surface:#1b232a; --code:#0e1215; --code-ink:#dfe6ea;
+  --ink:#eaeef0; --dim:#98a6af; --line:#2c3740; --line-2:#3b4852;
+  --accent:#e0a526; --ok:#8fcfa5; --ok-bg:#1d3025; --todo:#dcb766; --todo-bg:#332a17;
+}}
+:root[data-theme="dark"]{
+  --bg:#141a1f; --surface:#1b232a; --code:#0e1215; --code-ink:#dfe6ea;
+  --ink:#eaeef0; --dim:#98a6af; --line:#2c3740; --line-2:#3b4852;
+  --accent:#e0a526; --ok:#8fcfa5; --ok-bg:#1d3025; --todo:#dcb766; --todo-bg:#332a17;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Assistant,"Segoe UI",system-ui,sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:32px 18px 80px}
+h1,h2,h3{font-family:Heebo,"Segoe UI",sans-serif;margin:0;text-wrap:balance}
+h1{font-size:2rem;font-weight:900;letter-spacing:-.02em}
+h2{font-size:1.15rem;font-weight:700}
+h3{font-size:1.02rem;font-weight:700}
+p{margin:0}
+.eyebrow{font-family:Heebo,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.14em;color:var(--accent)}
+.sub{color:var(--dim);margin-top:10px;max-width:66ch}
+header.top{border-bottom:2px solid var(--line-2);padding-bottom:22px;margin-bottom:22px}
+.tally{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+
+.rule{background:var(--surface);border:1px solid var(--line);border-inline-start:4px solid var(--accent);border-radius:9px;padding:16px 18px;margin-bottom:20px}
+.rule p{color:var(--dim);font-size:.95rem;max-width:74ch;margin-top:6px}
+.rule b{color:var(--ink)}
+.steps{margin:8px 0 0;padding-inline-start:20px;color:var(--dim);font-size:.93rem}
+.steps li{margin-bottom:4px}
+.steps b{color:var(--ink)}
+
+.stylebox{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:16px 18px;margin-bottom:26px}
+.stylehead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.stylehead p{color:var(--dim);font-size:.89rem;flex:1;min-width:200px}
+details summary{cursor:pointer;color:var(--dim);font-size:.86rem;font-family:Heebo,sans-serif;font-weight:700}
+details[open] summary{margin-bottom:9px}
+pre{background:var(--code);color:var(--code-ink);border-radius:7px;padding:13px 15px;margin:0;
+  font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:.8rem;line-height:1.55;
+  white-space:pre-wrap;overflow-x:auto;direction:ltr;text-align:left}
+
+.shot{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:15px 17px;margin-bottom:12px}
+.shot.have{opacity:.72}
+.shot header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.shot h3{flex:1;min-width:140px}
+.n{font-family:Heebo,sans-serif;font-weight:900;font-size:.8rem;background:var(--ink);color:var(--bg);border-radius:5px;padding:2px 9px;font-variant-numeric:tabular-nums}
+.file{font-size:.82rem;color:var(--dim);direction:ltr}
+.status{font-family:Heebo,sans-serif;font-size:.77rem;font-weight:700;padding:3px 9px;border-radius:5px;white-space:nowrap}
+.status.ok{background:var(--ok-bg);color:var(--ok)}
+.status.todo{background:var(--todo-bg);color:var(--todo)}
+.where{color:var(--dim);font-size:.9rem;margin-bottom:9px;max-width:76ch}
+.where.hot{color:var(--todo);font-weight:600}
+
+button{font:inherit;font-family:Heebo,sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;
+  background:var(--accent);color:var(--bg);border:none;border-radius:7px;padding:7px 15px;white-space:nowrap}
+button:hover{opacity:.88}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.done{background:var(--ok)}
+.check{margin-top:30px;padding-top:18px;border-top:2px solid var(--line-2)}
+.check ol{margin:10px 0 0;padding-inline-start:20px;color:var(--dim);font-size:.93rem}
+.check li{margin-bottom:5px}
+.check b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <p class="eyebrow">תחיקת הבנייה · שיעור 18 · מרחבים מוגנים</p>
+  <h1>פרומפטים לסיור בבניין המוגן</h1>
+  <p class="sub">5 תמונות, אחת לכל תחנה. תחנה 6 משתמשת בתמונה של תחנה 5. כל כפתור מעתיק את בלוק הסגנון ואת הפרומפט יחד.</p>
+  <div class="tally">
+    <span class="status ok">0 בתיקייה</span>
+    <span class="status todo">5 לייצור</span>
+  </div>
+</header>
+
+<div class="rule">
+  <h2>הכלל שקובע את כל הפרומפטים</h2>
+  <p><b>אותה תמונה משמשת גם תיק תקין וגם תיק שבור.</b> תמונת הכבש מופיעה ליד "עולה 0.45 מ'" וגם ליד "עולה 0.90 מ' במהלך אחד". לכן התמונה אסור שתכריע שום מידה: לא שיפוע שאפשר לאמוד, לא סף שאפשר למדוד בעין, לא פרוזדור שאפשר לספור. המידות יושבות ברצועה מעל התמונה.</p>
+  <ol class="steps">
+    <li>לוחצים <b>העתקת הפרומפט</b> ומדביקים כפרומפט אחד.</li>
+    <li>יחס <b>16:9</b> לרוחב.</li>
+    <li>שומרים בשם שבכרטיס (<b>st1.jpg</b> וכו') ושולחים אחת-אחת.</li>
+  </ol>
+</div>
+
+<div class="stylebox">
+  <div class="stylehead">
+    <h2>בלוק הסגנון</h2>
+    <p>כלול אוטומטית בכל כפתור העתקה. כאן רק לעיון.</p>
+  </div>
+  <details><summary>הצגת הבלוק</summary><pre dir="ltr" id="pstyle">Architectural interior visualization, calm and precise, like a photograph in a
+building-regulations guide. A contemporary Israeli residential and mixed-use
+building: smooth grey cast-in-place concrete, off-white plaster, charcoal steel,
+light terrazzo or porcelain floor, clean fluorescent and LED lighting.
+
+Home Front Command protected spaces are shown realistically: thick grey steel
+blast doors with heavy lever handles and rubber gaskets, grey steel blast window
+shutters, round galvanized steel ventilation sleeves with bolted flanges set into
+the concrete walls.
+
+Muted, restrained palette: concrete grey, off-white, charcoal, with one warm amber
+accent light that makes the protected space the obvious subject when projected.
+
+Eye-level camera, natural perspective, no fisheye, no tilt. Clean and uncluttered.
+Wall openings are seen straight on, so the depth of the wall is never visible.
+
+No people.
+
+16:9 landscape.
+
+No text, no words, no letters, no numbers, no signs with writing, no dimension
+lines, no arrows, no measurement marks, no logos, no stickers, no readable writing
+anywhere in the image.</pre></details>
+</div>
+
+<h2 style="margin-bottom:12px">התמונות</h2>
+
+  <article class="shot">
+    <header>
+      <span class="n">1</span>
+      <h3>קומת העמודים המפולשת</h3>
+      <code class="file">st1.jpg</code>
+      <span class="status todo">לייצור</span>
+      <button class="copy" data-i="0">העתקת הפרומפט</button>
+    </header>
+    <p class="where">ירידת קירות המגדל ליסודות, פתח בקיר יורד, ארון בלוני גז, חדר המדרגות, פתח חדר המדרגות.</p>
+    <details open><summary>הצגת הפרומפט</summary><pre dir="ltr" id="p0">The open ground-level parking floor of a residential building, standing on round
+concrete columns, seen from inside the parking area. A few parked cars far in the
+background only.
+
+In the centre of the frame: a solid vertical block of plain grey concrete walls
+that comes straight down from the slab above to the floor, the base of the tower
+of protected rooms. On the wall facing the camera, slightly right of centre and at
+upper-middle height, one square window opening seen straight on, closed with a
+grey steel blast shutter.
+
+On the left, standing next to a column in the lower-left part of the frame: a
+free-standing ventilated metal cabinet for cooking-gas cylinders, closed, with
+louvred doors.
+
+On the right: the concrete stairwell core of the building, with its entrance
+opening at floor level in the lower-right part of the frame and a closed steel
+door inside.
+
+No gas cylinders visible outside the cabinet, no pipes crossing the frame, no
+beams visible under the central concrete block.</pre></details>
+  </article>
+  <article class="shot">
+    <header>
+      <span class="n">2</span>
+      <h3>המרפאה בקומת הקרקע</h3>
+      <code class="file">st2.jpg</code>
+      <span class="status todo">לייצור</span>
+      <button class="copy" data-i="1">העתקת הפרומפט</button>
+    </header>
+    <p class="where">שטח הממ"י, פיזיותרפיה בשגרה, מדפי מחסן, ממ"מ נוסף, קיר חיצוני.</p>
+    <details><summary>הצגת הפרומפט</summary><pre dir="ltr" id="p1">A large protected room inside a community health clinic, used every day as a
+physiotherapy room. Seen from one end of the room.
+
+In the centre: two padded physiotherapy treatment beds and a set of parallel
+exercise bars, clean and tidy.
+
+In the right part of the frame, against the side wall: tall fixed grey metal
+shelving units bolted to the wall, fully stocked with white medicine boxes and
+plastic storage bins, clearly a storage corner.
+
+On the far back wall at upper-middle height: a grey steel blast window seen
+straight on, closed.
+
+In the upper-left part of the frame: an open doorway to the clinic corridor, and
+across the corridor a second, smaller grey steel blast door of another protected
+room.
+
+No beds pushed against the shelves, no ceiling-mounted equipment, no text on the
+boxes.</pre></details>
+  </article>
+  <article class="shot">
+    <header>
+      <span class="n">3</span>
+      <h3>קומת המשרדים</h3>
+      <code class="file">st3.jpg</code>
+      <span class="status todo">לייצור</span>
+      <button class="copy" data-i="2">העתקת הפרומפט</button>
+    </header>
+    <p class="where">שטח הממ"מ, רוחב, גובה, מרחק הליכה, חלון ההדף, צינורות אוורור.</p>
+    <details><summary>הצגת הפרומפט</summary><pre dir="ltr" id="p2">A protected room on an office floor, used every day as a meeting room. The camera
+stands inside the room near one corner.
+
+In the centre: a simple long meeting table with office chairs, a closed laptop.
+
+On the right wall at mid height: one grey steel blast window seen straight on,
+closed, with an inner glass window.
+
+High on the walls, close to the ceiling, exactly two round galvanized steel
+ventilation sleeves with bolted flanges: one in the upper-left corner area of the
+room and one in the diagonally opposite corner. Only these two, no other pipes.
+
+In the lower-left part of the frame: the heavy grey steel blast door stands open,
+and through it a long open-plan office floor with rows of desks recedes into the
+distance.
+
+The ceiling is plain concrete with flush LED panels. No tall cabinets, no objects
+that reach near the ceiling.</pre></details>
+  </article>
+  <article class="shot">
+    <header>
+      <span class="n">4</span>
+      <h3>קומת מגורים עם ממ"ק</h3>
+      <code class="file">st4.jpg</code>
+      <span class="status todo">לייצור</span>
+      <button class="copy" data-i="3">העתקת הפרומפט</button>
+    </header>
+    <p class="where">שטח הממ"ק, רוחב, קירות חיצוניים, עובי קיר חיצוני, קיר המגן, פתח החילוץ.</p>
+    <details><summary>הצגת הפרומפט</summary><pre dir="ltr" id="p3">The shared protected room of one floor in a residential building, seen from the
+floor lobby through its open door.
+
+In the left part of the frame: the lobby, and a short freestanding concrete wall
+standing directly in front of the protected room's door, shielding it.
+
+In the centre: the heavy grey steel blast door, open outward toward the lobby.
+Through the doorway the protected room is visible: bare concrete walls, a few
+folding chairs stacked neatly, plain floor tiles.
+
+Inside the room, in the upper part of the frame: a fixed galvanized steel ladder
+fixed to the wall, rising to a square steel hatch in the concrete ceiling.
+
+The room's far right wall is plain concrete with one small closed steel blast
+window seen straight on.
+
+No elevator doors with numbers, no apartment doors with numbers, no mailboxes.</pre></details>
+  </article>
+  <article class="shot">
+    <header>
+      <span class="n">5</span>
+      <h3>דירה עם ממ"ד (גם תחנה 6)</h3>
+      <code class="file">st5.jpg</code>
+      <span class="status todo">לייצור</span>
+      <button class="copy" data-i="4">העתקת הפרומפט</button>
+    </header>
+    <p class="where">גובה התקרה, קירות חיצוניים, דלת ההדף, קיר המסדרון, צינורות אוורור, חלון ההדף, חיפוי אריחים. בתחנה 6 גם: עובי התקרה, קיר המגן, הממ"ק בקומה אחרת.</p>
+    <details><summary>הצגת הפרומפט</summary><pre dir="ltr" id="p4">The apartment protected room of a family home, used every day as a home office.
+The camera stands inside the room, looking toward one corner.
+
+In the left part of the frame: the heavy grey steel blast door, open outward into
+the apartment corridor, and the plain plastered corridor wall facing the doorway.
+
+In the centre: a wooden desk with a desk chair and a monitor. On the wall directly
+behind the desk, a band of glossy white ceramic wall tiles, clearly tiled, starting
+above the desk top.
+
+On the right wall: one grey steel blast window seen straight on, with its hinged
+steel shutter open against the wall and an inner glass window.
+
+Two small round galvanized steel ventilation sleeves with bolted flanges, in
+opposite corners of the room: one at about shoulder height on the back wall, the
+other higher up, closer to the ceiling, on the far end of the room.
+
+The ceiling is plain white plaster with one flush light. No bookcase or cabinet
+that reaches the ceiling, no ceiling fan.</pre></details>
+  </article>
+
+<div class="check">
+  <h2>מה אני בודק בכל תמונה</h2>
+  <ol>
+    <li><b>האם היא מכריעה מידה שמשתנה בין התיקים.</b> מדרגות ליד הכבש, פודסט, סף שנראה גבוה או נמוך, פרוזדור שאפשר לספור. כל אחד מאלה פוסל.</li>
+    <li><b>האם נכנס טקסט, מספר או חץ</b> למרות האיסור.</li>
+    <li><b>האם הנושא נקרא</b> כשהתמונה בגודל רבע מסך.</li>
+    <li><b>האם הרבע התחתון שקט</b>, כי רצועת המידות מכסה אותו.</li>
+    <li><b>אחידות הסדרה</b>: אותה שעה ביום, אותה פלטה, אותה עדשה.</li>
+  </ol>
+</div>
+</div>
+
+<script>
+const STYLE = "Architectural interior visualization, calm and precise, like a photograph in a\r\nbuilding-regulations guide. A contemporary Israeli residential and mixed-use\r\nbuilding: smooth grey cast-in-place concrete, off-white plaster, charcoal steel,\r\nlight terrazzo or porcelain floor, clean fluorescent and LED lighting.\r\n\r\nHome Front Command protected spaces are shown realistically: thick grey steel\r\nblast doors with heavy lever handles and rubber gaskets, grey steel blast window\r\nshutters, round galvanized steel ventilation sleeves with bolted flanges set into\r\nthe concrete walls.\r\n\r\nMuted, restrained palette: concrete grey, off-white, charcoal, with one warm amber\r\naccent light that makes the protected space the obvious subject when projected.\r\n\r\nEye-level camera, natural perspective, no fisheye, no tilt. Clean and uncluttered.\r\nWall openings are seen straight on, so the depth of the wall is never visible.\r\n\r\nNo people.\r\n\r\n16:9 landscape.\r\n\r\nNo text, no words, no letters, no numbers, no signs with writing, no dimension\r\nlines, no arrows, no measurement marks, no logos, no stickers, no readable writing\r\nanywhere in the image.";
+const PROMPTS = ["The open ground-level parking floor of a residential building, standing on round\r\nconcrete columns, seen from inside the parking area. A few parked cars far in the\r\nbackground only.\r\n\r\nIn the centre of the frame: a solid vertical block of plain grey concrete walls\r\nthat comes straight down from the slab above to the floor, the base of the tower\r\nof protected rooms. On the wall facing the camera, slightly right of centre and at\r\nupper-middle height, one square window opening seen straight on, closed with a\r\ngrey steel blast shutter.\r\n\r\nOn the left, standing next to a column in the lower-left part of the frame: a\r\nfree-standing ventilated metal cabinet for cooking-gas cylinders, closed, with\r\nlouvred doors.\r\n\r\nOn the right: the concrete stairwell core of the building, with its entrance\r\nopening at floor level in the lower-right part of the frame and a closed steel\r\ndoor inside.\r\n\r\nNo gas cylinders visible outside the cabinet, no pipes crossing the frame, no\r\nbeams visible under the central concrete block.","A large protected room inside a community health clinic, used every day as a\r\nphysiotherapy room. Seen from one end of the room.\r\n\r\nIn the centre: two padded physiotherapy treatment beds and a set of parallel\r\nexercise bars, clean and tidy.\r\n\r\nIn the right part of the frame, against the side wall: tall fixed grey metal\r\nshelving units bolted to the wall, fully stocked with white medicine boxes and\r\nplastic storage bins, clearly a storage corner.\r\n\r\nOn the far back wall at upper-middle height: a grey steel blast window seen\r\nstraight on, closed.\r\n\r\nIn the upper-left part of the frame: an open doorway to the clinic corridor, and\r\nacross the corridor a second, smaller grey steel blast door of another protected\r\nroom.\r\n\r\nNo beds pushed against the shelves, no ceiling-mounted equipment, no text on the\r\nboxes.","A protected room on an office floor, used every day as a meeting room. The camera\r\nstands inside the room near one corner.\r\n\r\nIn the centre: a simple long meeting table with office chairs, a closed laptop.\r\n\r\nOn the right wall at mid height: one grey steel blast window seen straight on,\r\nclosed, with an inner glass window.\r\n\r\nHigh on the walls, close to the ceiling, exactly two round galvanized steel\r\nventilation sleeves with bolted flanges: one in the upper-left corner area of the\r\nroom and one in the diagonally opposite corner. Only these two, no other pipes.\r\n\r\nIn the lower-left part of the frame: the heavy grey steel blast door stands open,\r\nand through it a long open-plan office floor with rows of desks recedes into the\r\ndistance.\r\n\r\nThe ceiling is plain concrete with flush LED panels. No tall cabinets, no objects\r\nthat reach near the ceiling.","The shared protected room of one floor in a residential building, seen from the\r\nfloor lobby through its open door.\r\n\r\nIn the left part of the frame: the lobby, and a short freestanding concrete wall\r\nstanding directly in front of the protected room's door, shielding it.\r\n\r\nIn the centre: the heavy grey steel blast door, open outward toward the lobby.\r\nThrough the doorway the protected room is visible: bare concrete walls, a few\r\nfolding chairs stacked neatly, plain floor tiles.\r\n\r\nInside the room, in the upper part of the frame: a fixed galvanized steel ladder\r\nfixed to the wall, rising to a square steel hatch in the concrete ceiling.\r\n\r\nThe room's far right wall is plain concrete with one small closed steel blast\r\nwindow seen straight on.\r\n\r\nNo elevator doors with numbers, no apartment doors with numbers, no mailboxes.","The apartment protected room of a family home, used every day as a home office.\r\nThe camera stands inside the room, looking toward one corner.\r\n\r\nIn the left part of the frame: the heavy grey steel blast door, open outward into\r\nthe apartment corridor, and the plain plastered corridor wall facing the doorway.\r\n\r\nIn the centre: a wooden desk with a desk chair and a monitor. On the wall directly\r\nbehind the desk, a band of glossy white ceramic wall tiles, clearly tiled, starting\r\nabove the desk top.\r\n\r\nOn the right wall: one grey steel blast window seen straight on, with its hinged\r\nsteel shutter open against the wall and an inner glass window.\r\n\r\nTwo small round galvanized steel ventilation sleeves with bolted flanges, in\r\nopposite corners of the room: one at about shoulder height on the back wall, the\r\nother higher up, closer to the ceiling, on the far end of the room.\r\n\r\nThe ceiling is plain white plaster with one flush light. No bookcase or cabinet\r\nthat reaches the ceiling, no ceiling fan."];
+function copyText(t) {
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t);
+  const ta = document.createElement("textarea");
+  ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  const ok = document.execCommand("copy");
+  ta.remove();
+  return ok ? Promise.resolve() : Promise.reject(new Error("copy failed"));
+}
+document.querySelectorAll("button.copy").forEach((b) => {
+  b.addEventListener("click", () => {
+    copyText(STYLE + "\n\n" + PROMPTS[Number(b.dataset.i)]).then(() => {
+      b.textContent = "הועתק"; b.classList.add("done");
+      setTimeout(() => { b.textContent = "העתקת הפרומפט"; b.classList.remove("done"); }, 1600);
+    }).catch(() => {
+      b.textContent = "לא הצלחתי, סמנו ידנית";
+      setTimeout(() => { b.textContent = "העתקת הפרומפט"; }, 2600);
+    });
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#12151a">
+<title>סיור בבניין המוגן</title>
+<link rel="stylesheet" href="css/common.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--txt);min-height:100vh;font-family:"Segoe UI",Arial,sans-serif;display:flex;flex-direction:column}
+  .wrap{flex:1;display:flex;flex-direction:column;padding:14px;gap:12px;max-width:640px;width:100%;margin:0 auto}
+  h1{font-size:28px;color:var(--accent);text-align:center}
+  .sub{font-size:15px;color:var(--dim);text-align:center;line-height:1.5}
+  label{font-size:15px;color:var(--dim);display:block;margin-bottom:6px}
+  input.txt{width:100%;padding:14px;font-size:19px;font-family:inherit;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--txt)}
+  .colors{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+  .sw{aspect-ratio:1;border-radius:50%;border:3px solid transparent;cursor:pointer}
+  .sw.sel{border-color:#fff;transform:scale(1.08)}
+  .sw.taken{opacity:.18;cursor:not-allowed}
+  button{font-family:inherit;cursor:pointer;border:none}
+  .go{font-size:18px;font-weight:700;padding:15px;border-radius:12px;background:var(--accent);color:var(--accent-ink);width:100%}
+  .go:disabled{opacity:.35}
+
+  .status{display:flex;align-items:center;gap:9px;padding:9px 13px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  .me{padding:4px 12px;border-radius:14px;font-size:15px;font-weight:700;color:#0b0f10;max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .st{font-size:14px;color:var(--dim)} .st b{color:var(--txt)} .sp{flex:1}
+  .pts{font-size:16px;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+  .floors{display:flex;gap:4px}
+  .fl{flex:1;height:7px;border-radius:4px;background:var(--line)}
+  .fl.done{background:var(--accent)} .fl.cur{background:#7d6a3b}
+
+  .sthd .fr{font-size:13px;color:var(--accent);font-weight:800;letter-spacing:.04em}
+  .sthd .tt{font-size:22px;font-weight:800;margin-top:2px}
+  .sthd .in{font-size:15px;color:var(--dim);line-height:1.5;margin-top:4px}
+  @media (min-height:740px){ .figwrap{position:sticky;top:48px;z-index:3;background:var(--bg);padding-bottom:6px} }
+
+  .opts{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+  .opt{text-align:start;font-size:15px;line-height:1.4;padding:11px 12px;border-radius:10px;background:var(--panel2);color:var(--txt);border:1px solid var(--line)}
+  .opt.pass{border-color:rgba(60,207,126,.45)}
+  .opt.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+  .opt.pass.sel{background:var(--ok);border-color:var(--ok);color:#062012}
+  .spot.focus{box-shadow:0 0 0 2px var(--accent)}
+  .mine{font-size:14px;margin-top:8px;line-height:1.5}
+  .mine b{font-weight:800}
+  .gain{font-weight:800;float:left;font-variant-numeric:tabular-nums}
+  .gain.ok{color:var(--ok)} .gain.part{color:var(--part)} .gain.bad{color:var(--bad)}
+  .sum{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px;line-height:1.6}
+  .sum b{color:var(--accent);font-size:20px}
+
+  .big{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:18px}
+  .big .ic{font-size:58px} .big .t{font-size:25px;font-weight:800} .big .d{font-size:16px;color:var(--dim);line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="join">
+  <h1>סיור בבניין המוגן</h1>
+  <div class="sub">תחיקת הבנייה · שיעור 18 · מרחבים מוגנים<br>מצטרפים כקבוצה, טלפון אחד לכל קבוצה</div>
+  <div>
+    <label for="nm">שם הקבוצה</label>
+    <input class="txt" type="text" id="nm" maxlength="16" autocomplete="off" placeholder="איך שיופיע על המסך">
+  </div>
+  <div>
+    <label>צבע הקבוצה</label>
+    <div class="colors" id="colors"></div>
+  </div>
+  <button class="go" id="btnJoin">מצטרפים</button>
+  <div class="sub" id="joinmsg"></div>
+</div>
+
+<div id="game" class="hidden" style="flex:1;display:flex;flex-direction:column">
+  <div class="status">
+    <span class="me" id="me"></span>
+    <span class="st" id="stFloor"></span>
+    <span class="sp"></span>
+    <span class="pts" id="pts"></span>
+  </div>
+  <div class="wrap" id="stage"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="js/config.js"></script>
+<script src="js/gameData.js"></script>
+<script src="js/ui.js"></script>
+<script>
+/* =====================================================================
+   הטלפון של הקבוצה. כל קבוצה עולה בבניין בקצב שלה, ולכן הבדיקה נעשית כאן:
+   בסוף כל קומה הקבוצה רואה מיד מה עבר ומה נפסל. מסך המרצה רק מציג.
+   ===================================================================== */
+const $ = (id) => document.getElementById(id);
+const M = window.MUGAN, G = window.gameData, ST = G.stations, esc = M.esc;
+const LS = G.meta.slug + ".tid";
+
+if (!window.FIREBASE_CONFIG) {
+  document.body.innerHTML = `<div class="wrap"><div class="big"><div class="ic">🔌</div>
+    <div class="t">המשחק עוד לא מחובר</div>
+    <div class="d">חסר חיבור ל-Firebase. בינתיים אפשר לתרגל בדף <a href="solo.html" style="color:var(--accent)">התרגול האישי</a>.</div></div></div>`;
+  throw new Error("missing FIREBASE_CONFIG");
+}
+firebase.initializeApp(window.FIREBASE_CONFIG);
+const db = firebase.database();
+const TS = firebase.database.ServerValue.TIMESTAMP;
+
+let tid = null, team = null, teams = {}, game = { state: "lobby" };
+let color = G.meta.colors[0];
+let draft = {}, focus = null, busy = false;
+
+/* ---------------------- הצטרפות ---------------------- */
+const takenColors = () => Object.entries(teams).filter(([k]) => k !== tid).map(([, t]) => t.color);
+function paintColors() {
+  const tk = takenColors();
+  $("colors").innerHTML = G.meta.colors.map((c) =>
+    `<div class="sw ${c === color ? "sel" : ""} ${tk.includes(c) ? "taken" : ""}" data-c="${c}" style="background:${c}" role="button" aria-label="בחירת צבע"></div>`).join("");
+}
+$("colors").onclick = (e) => {
+  const sw = e.target.closest(".sw");
+  if (!sw || sw.classList.contains("taken")) return;
+  color = sw.dataset.c; paintColors();
+};
+paintColors();
+
+db.ref("teams").on("value", (s) => {
+  teams = s.val() || {};
+  if (!tid) {
+    const tk = takenColors();
+    if (tk.includes(color)) color = G.meta.colors.find((c) => !tk.includes(c)) || color;
+    paintColors();
+    return;
+  }
+  if (!teams[tid]) { localStorage.removeItem(LS); location.reload(); return; }
+  team = teams[tid];
+  render();
+});
+
+db.ref("game").on("value", (s) => {
+  game = s.val() || { state: "lobby" };
+  if (tid) render();
+});
+
+$("btnJoin").onclick = () => {
+  const name = $("nm").value.trim();
+  if (name.length < 2) { $("joinmsg").textContent = "צריך שם באורך שתי אותיות לפחות"; return; }
+  if (takenColors().includes(color)) { $("joinmsg").textContent = "הצבע הזה נתפס, בחרו אחר"; return; }
+  if (Object.values(teams).some((t) => t.name === name)) { $("joinmsg").textContent = "כבר יש קבוצה בשם הזה"; return; }
+  $("btnJoin").disabled = true;
+  const ref = db.ref("teams").push();
+  tid = ref.key;
+  ref.set({ name, color, joinedAt: TS, at: 0 })
+    .then(() => { localStorage.setItem(LS, tid); team = { name, color, at: 0 }; enter(); })
+    .catch(() => { tid = null; $("btnJoin").disabled = false; $("joinmsg").textContent = "ההצטרפות נכשלה, נסו שוב"; });
+};
+
+(function restore() {
+  const saved = localStorage.getItem(LS);
+  if (!saved) return;
+  db.ref("teams/" + saved).once("value").then((s) => {
+    if (!s.exists()) { localStorage.removeItem(LS); return; }
+    tid = saved; team = s.val(); color = team.color; enter();
+  });
+})();
+
+function enter() {
+  $("join").classList.add("hidden");
+  $("game").classList.remove("hidden");
+  render();
+}
+
+/* ---------------------- ציור ---------------------- */
+const DKEY = () => `${G.meta.slug}.draft.${tid}`;
+function loadDraft(stId) {
+  try { return (JSON.parse(localStorage.getItem(DKEY()) || "{}")[stId]) || {}; } catch (e) { return {}; }
+}
+function saveDraft(stId) {
+  try { const all = JSON.parse(localStorage.getItem(DKEY()) || "{}"); all[stId] = draft; localStorage.setItem(DKEY(), JSON.stringify(all)); } catch (e) {}
+}
+
+function big(ic, t, d) {
+  $("stage").innerHTML = `<div class="big"><div class="ic">${ic}</div><div class="t">${t}</div><div class="d">${d}</div></div>`;
+}
+
+function paintStatus() {
+  $("me").textContent = team.name;
+  $("me").style.background = team.color;
+  const at = Math.min(team.at || 0, ST.length);
+  $("stFloor").innerHTML = game.state === "lobby" ? "לובי"
+    : at >= ST.length ? "<b>על הגג</b>" : `תחנה <b>${at + 1}</b> מתוך ${ST.length}`;
+  $("pts").textContent = game.state === "lobby" ? "" : M.totalScore(team.ans).pts + " נק'";
+}
+
+function floorsHTML(at) {
+  return `<div class="floors" aria-hidden="true">${ST.map((_, i) => `<div class="fl ${i < at ? "done" : i === at ? "cur" : ""}"></div>`).join("")}</div>`;
+}
+
+function render() {
+  if (!tid || !team) return;
+  paintStatus();
+  const at = team.at || 0;
+
+  if (game.state === "lobby")
+    return big("🏢", "הקבוצה בפנים", "מחכים שכל הקבוצות יצטרפו ושהסיור ייפתח.<br>תפתחו כבר את הספר בפרק 24, מקלטים ומרחבים מוגנים.");
+
+  if (game.state === "review" || game.state === "finished") {
+    const tot = M.totalScore(team.ans);
+    if (game.state === "finished" || game.review == null)
+      return big("🏁", "הסיור נגמר", `צברתם <b style="color:var(--accent)">${tot.pts}</b> מתוך ${M.maxPoints()} נקודות.<br>הטבלה על המסך הגדול.`);
+    return drawResult(ST[game.review], true);
+  }
+
+  // סיור פעיל
+  if (at >= ST.length) {
+    const tot = M.totalScore(team.ans);
+    return big("✅", "סיימתם את הסיור", `${tot.pts} מתוך ${M.maxPoints()} נקודות.<br>${tot.exact} הכרעות מדויקות, ${tot.verdict} פסילות עם סיבה אחרת.<br>מחכים לשאר הקבוצות.`);
+  }
+  const st = ST[at];
+  if (team.ans && team.ans[st.id]) return drawResult(st, false);
+  drawStation(st);
+}
+
+function drawStation(st) {
+  const at = team.at || 0;
+  if (draft.__st !== st.id) { draft = Object.assign({}, loadDraft(st.id)); draft.__st = st.id; focus = null; }
+  const seed = tid;
+  const marks = {};
+  st.spots.forEach((sp) => { marks[sp.id] = (draft[sp.id] ? "sel" : "") + (focus === sp.id ? " foc" : ""); });
+  const all = st.spots.every((sp) => draft[sp.id]);
+  $("stage").innerHTML = `${floorsHTML(at)}
+    <div class="sthd"><div class="fr">${esc(st.floor)}</div><div class="tt">${esc(st.title)}</div><div class="in">${esc(st.intro)}</div></div>
+    <div class="figwrap">${M.figureHTML(st, marks)}</div>
+    ${st.spots.map((sp, i) => `<div class="spot ${focus === sp.id ? "focus" : ""}" id="sp-${sp.id}">
+        <div class="hd"><span class="no">${i + 1}</span><span class="lb">${esc(sp.label)}</span></div>
+        <div class="dt">${esc(sp.data)}</div>
+        <div class="opts">${M.optionsFor(sp, seed).map((o) =>
+          `<button class="opt ${o.key === "pass" ? "pass" : ""} ${draft[sp.id] === o.key ? "sel" : ""}" data-sp="${sp.id}" data-k="${o.key}">${o.key === "pass" ? "✓ " : "✗ נפסל: "}${esc(o.text)}</button>`).join("")}</div>
+      </div>`).join("")}
+    <button class="go" id="btnSubmit" ${all ? "" : "disabled"}>${all ? "הגשה לפקח" : `נשארו ${st.spots.filter((sp) => !draft[sp.id]).length} נקודות`}</button>`;
+
+  document.querySelectorAll(".opt").forEach((b) => {
+    b.onclick = () => {
+      if (game.state !== "tour") return;
+      draft[b.dataset.sp] = b.dataset.k; focus = b.dataset.sp;
+      saveDraft(st.id);
+      const y = window.scrollY;
+      drawStation(st);
+      window.scrollTo(0, y);
+    };
+  });
+  pinJump(() => drawStation(st));
+  $("btnSubmit").onclick = submit;
+}
+
+// הקשה על נקודה באיור קופצת לכרטיס שלה
+function pinJump(redraw) {
+  document.querySelectorAll(".pin").forEach((pn) => {
+    pn.onclick = () => {
+      focus = pn.dataset.spot;
+      if (redraw) redraw();
+      const card = $("sp-" + focus);
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+  });
+}
+
+function drawResult(st, reviewing) {
+  const ans = (team.ans && team.ans[st.id]) || {};
+  const sc = M.stationScore(st, ans);
+  const marks = {};
+  st.spots.forEach((sp) => { marks[sp.id] = ans[sp.id] ? M.markFor(sp, ans[sp.id]) : "bad"; });
+  const idx = ST.indexOf(st), last = idx + 1 >= ST.length;
+  const optText = (sp, k) => k === "pass" ? "עובר" : "נפסל: " + sp.reasons[+k.slice(1)];
+  $("stage").innerHTML = `${reviewing ? "" : floorsHTML(team.at || 0)}
+    <div class="sthd"><div class="fr">${esc(st.floor)}${reviewing ? " · הפתרון על המסך" : ""}</div><div class="tt">${esc(st.title)}</div></div>
+    <div class="figwrap">${M.figureHTML(st, marks)}</div>
+    <div class="sum">בתחנה הזו: <b>${sc.pts}</b> מתוך ${st.spots.length * G.meta.points.exact} נקודות</div>
+    ${st.spots.map((sp, i) => {
+      const k = ans[sp.id], g = M.grade(sp, k), cls = k ? M.markFor(sp, k) : "bad";
+      return `<div class="spot ${cls}" id="sp-${sp.id}">
+        <div class="hd"><span class="no">${i + 1}</span><span class="lb">${esc(sp.label)}</span></div>
+        <div class="dt">${esc(sp.data)}</div>
+        <div class="mine"><span class="gain ${cls}">+${g.pts}</span>ענינו: <b>${k ? esc(optText(sp, k)) : "לא ענינו"}</b></div>
+        <span class="verdict ${sp.verdict}">${sp.verdict === "pass" ? "עובר" : "נפסל: " + esc(sp.reasons[0])}</span>
+        <div class="why">${esc(sp.why)}<span class="src">📖 ${esc(sp.src)}</span></div>
+      </div>`;
+    }).join("")}
+    ${reviewing ? "" : `<button class="go" id="btnNext">${last ? "לגג: סיום הסיור" : "לתחנה הבאה"}</button>`}`;
+  pinJump();
+  if ($("btnNext")) $("btnNext").onclick = next;
+}
+
+/* ---------------------- כתיבה ---------------------- */
+function submit() {
+  if (busy || game.state !== "tour") return;
+  const at = team.at || 0, st = ST[at];
+  if (!st || (team.ans && team.ans[st.id])) return;
+  const ans = {};
+  st.spots.forEach((sp) => { if (draft[sp.id]) ans[sp.id] = draft[sp.id]; });
+  if (Object.keys(ans).length < st.spots.length) return;
+  team.ans = team.ans || {};
+  team.ans[st.id] = ans;
+  busy = true;
+  db.ref(`teams/${tid}`).update({ [`ans/${st.id}`]: ans, [`sub/${st.id}`]: TS }).then(() => { busy = false; }, () => { busy = false; });
+  if (navigator.vibrate) navigator.vibrate([25, 40, 25]);
+  render();
+  window.scrollTo(0, 0);
+}
+
+function next() {
+  if (busy || game.state !== "tour") return;
+  const at = (team.at || 0) + 1;
+  team.at = at;
+  const upd = { at };
+  if (at >= ST.length) upd.finishedAt = TS;
+  busy = true;
+  db.ref(`teams/${tid}`).update(upd).then(() => { busy = false; }, () => { busy = false; });
+  render();
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

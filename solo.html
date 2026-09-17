@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#12151a">
+<title>סיור בבניין המוגן - תרגול אישי</title>
+<link rel="stylesheet" href="css/common.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--txt);min-height:100vh;font-family:"Segoe UI",Arial,sans-serif}
+  .wrap{display:flex;flex-direction:column;padding:14px;gap:12px;max-width:760px;width:100%;margin:0 auto}
+  button{font-family:inherit;cursor:pointer;border:none}
+  .go{font-size:18px;font-weight:700;padding:15px;border-radius:12px;background:var(--accent);color:var(--accent-ink);width:100%}
+  .go:disabled{opacity:.35}
+  .ghost{font-size:15px;font-weight:700;padding:10px 14px;border-radius:10px;background:var(--panel2);color:var(--txt);border:1px solid var(--line)}
+
+  .top{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  .top .b{font-weight:800;color:var(--accent);font-size:17px}
+  .top .st{font-size:14px;color:var(--dim)} .top .st b{color:var(--txt)}
+  .top .sp{flex:1}
+  .top .pts{font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+
+  .floors{display:flex;gap:4px}
+  .fl{flex:1;height:7px;border-radius:4px;background:var(--line)}
+  .fl.done{background:var(--accent)} .fl.cur{background:#7d6a3b}
+  .sthd .fr{font-size:13px;color:var(--accent);font-weight:800;letter-spacing:.04em}
+  .sthd .tt{font-size:24px;font-weight:800;margin-top:2px}
+  .sthd .in{font-size:15.5px;color:var(--dim);line-height:1.5;margin-top:4px}
+  @media (max-width:700px) and (min-height:740px){ .figwrap{position:sticky;top:46px;z-index:3;background:var(--bg);padding-bottom:6px} }
+
+  .opts{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+  .opt{text-align:start;font-size:15px;line-height:1.4;padding:11px 12px;border-radius:10px;background:var(--panel2);color:var(--txt);border:1px solid var(--line)}
+  .opt.pass{border-color:rgba(60,207,126,.45)}
+  .opt.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+  .opt.pass.sel{background:var(--ok);border-color:var(--ok);color:#062012}
+  .spot.focus{box-shadow:0 0 0 2px var(--accent)}
+  .mine{font-size:14px;margin-top:8px;line-height:1.5}
+  .gain{font-weight:800;float:left;font-variant-numeric:tabular-nums}
+  .gain.ok{color:var(--ok)} .gain.part{color:var(--part)} .gain.bad{color:var(--bad)}
+  .sum{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:16px;line-height:1.7}
+  .sum b{color:var(--accent);font-size:20px}
+  table.fin{width:100%;border-collapse:collapse;font-size:16px}
+  .fin td{padding:9px 6px;border-bottom:1px solid var(--line)}
+  .fin td.n{text-align:end;font-weight:800;font-variant-numeric:tabular-nums}
+  .intro{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;font-size:16px;line-height:1.7}
+  .intro h1{font-size:28px;color:var(--accent);margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <span class="b">סיור בבניין המוגן</span>
+  <span class="st" id="stFloor"></span>
+  <span class="sp"></span>
+  <span class="pts" id="pts"></span>
+</div>
+<div class="wrap" id="stage"></div>
+
+<script src="js/gameData.js"></script>
+<script src="js/ui.js"></script>
+<script>
+/* =====================================================================
+   תרגול אישי, בלי Firebase ובלי שעון. ההתקדמות נשמרת ב-localStorage,
+   כך שרענון או סגירת הדף לא מאבדים אותה.
+   ===================================================================== */
+const $ = (id) => document.getElementById(id);
+const M = window.MUGAN, G = window.gameData, ST = G.stations, esc = M.esc;
+const KEY = G.meta.slug + ".solo";
+
+function fresh() { return { started: false, at: 0, ans: {}, draft: {}, seed: Math.random().toString(36).slice(2) }; }
+let S;
+try { S = Object.assign(fresh(), JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) { S = fresh(); }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+let focus = null;
+
+function floorsHTML() {
+  return `<div class="floors" aria-hidden="true">${ST.map((s, i) => `<div class="fl ${S.ans[s.id] ? "done" : i === S.at ? "cur" : ""}"></div>`).join("")}</div>`;
+}
+
+function render() {
+  const tot = M.totalScore(S.ans);
+  $("pts").textContent = S.started ? tot.pts + " נק'" : "";
+  $("stFloor").innerHTML = !S.started ? "תרגול אישי" : S.at >= ST.length ? "<b>על הגג</b>" : `תחנה <b>${S.at + 1}</b> מתוך ${ST.length}`;
+
+  if (!S.started) {
+    $("stage").innerHTML = `<div class="intro"><h1>סיור בבניין המוגן</h1>
+      אתם הפקחים של פיקוד העורף. עולים בבניין אחד קומה אחרי קומה: קומת העמודים, מרפאה, משרדים,
+      קומת מגורים עם ממ"ק, דירה עם ממ"ד, ולבסוף אותה דירה ביישוב קדמי.<br><br>
+      בכל תחנה כמה נקודות ממוספרות, ולכל אחת נתונים. בכל נקודה מכריעים: עוברת, או נפסלת ובגלל מה.
+      הכרעה וסיבה נכונות שוות 10 נקודות, פסילה נכונה עם סיבה אחרת שווה 4.<br><br>
+      כל התשובות נמצאות בפרק 24 בספר, מקלטים ומרחבים מוגנים.</div>
+      <button class="go" id="btnGo">מתחילים בקומת העמודים</button>`;
+    $("btnGo").onclick = () => { S.started = true; save(); render(); };
+    return;
+  }
+  if (S.at >= ST.length) return drawFinish(tot);
+  const st = ST[S.at];
+  if (S.ans[st.id]) return drawResult(st);
+  drawStation(st);
+}
+
+function drawStation(st) {
+  const draft = S.draft[st.id] = S.draft[st.id] || {};
+  const marks = {};
+  st.spots.forEach((sp) => { marks[sp.id] = (draft[sp.id] ? "sel" : "") + (focus === sp.id ? " foc" : ""); });
+  const left = st.spots.filter((sp) => !draft[sp.id]).length;
+  $("stage").innerHTML = `${floorsHTML()}
+    <div class="sthd"><div class="fr">${esc(st.floor)}</div><div class="tt">${esc(st.title)}</div><div class="in">${esc(st.intro)}</div></div>
+    <div class="figwrap">${M.figureHTML(st, marks)}</div>
+    ${st.spots.map((sp, i) => `<div class="spot ${focus === sp.id ? "focus" : ""}" id="sp-${sp.id}">
+        <div class="hd"><span class="no">${i + 1}</span><span class="lb">${esc(sp.label)}</span></div>
+        <div class="dt">${esc(sp.data)}</div>
+        <div class="opts">${M.optionsFor(sp, S.seed).map((o) =>
+          `<button class="opt ${o.key === "pass" ? "pass" : ""} ${draft[sp.id] === o.key ? "sel" : ""}" data-sp="${sp.id}" data-k="${o.key}">${o.key === "pass" ? "✓ " : "✗ נפסל: "}${esc(o.text)}</button>`).join("")}</div>
+      </div>`).join("")}
+    <button class="go" id="btnSubmit" ${left ? "disabled" : ""}>${left ? `נשארו ${left} נקודות` : "הגשה לפקח"}</button>`;
+  document.querySelectorAll(".opt").forEach((b) => {
+    b.onclick = () => {
+      draft[b.dataset.sp] = b.dataset.k; focus = b.dataset.sp; save();
+      const y = window.scrollY; drawStation(st); window.scrollTo(0, y);
+    };
+  });
+  pinJump(st, () => drawStation(st));
+  $("btnSubmit").onclick = () => {
+    if (st.spots.some((sp) => !draft[sp.id])) return;
+    S.ans[st.id] = Object.assign({}, draft); save(); render(); window.scrollTo(0, 0);
+  };
+}
+
+// הקשה על נקודה באיור קופצת לכרטיס שלה
+function pinJump(st, redraw) {
+  document.querySelectorAll(".pin").forEach((pn) => {
+    pn.onclick = () => {
+      focus = pn.dataset.spot;
+      if (redraw) redraw();
+      const card = $("sp-" + focus);
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+  });
+}
+
+function drawResult(st) {
+  const ans = S.ans[st.id], sc = M.stationScore(st, ans);
+  const marks = {};
+  st.spots.forEach((sp) => { marks[sp.id] = M.markFor(sp, ans[sp.id]); });
+  const last = S.at + 1 >= ST.length;
+  const optText = (sp, k) => k === "pass" ? "עובר" : "נפסל: " + sp.reasons[+k.slice(1)];
+  $("stage").innerHTML = `${floorsHTML()}
+    <div class="sthd"><div class="fr">${esc(st.floor)}</div><div class="tt">${esc(st.title)}</div></div>
+    <div class="figwrap">${M.figureHTML(st, marks)}</div>
+    <div class="sum">בתחנה הזו: <b>${sc.pts}</b> מתוך ${st.spots.length * G.meta.points.exact} נקודות</div>
+    ${st.spots.map((sp, i) => {
+      const k = ans[sp.id], g = M.grade(sp, k), cls = M.markFor(sp, k);
+      return `<div class="spot ${cls}" id="sp-${sp.id}">
+        <div class="hd"><span class="no">${i + 1}</span><span class="lb">${esc(sp.label)}</span></div>
+        <div class="dt">${esc(sp.data)}</div>
+        <div class="mine"><span class="gain ${cls}">+${g.pts}</span>עניתם: <b>${esc(optText(sp, k))}</b></div>
+        <span class="verdict ${sp.verdict}">${sp.verdict === "pass" ? "עובר" : "נפסל: " + esc(sp.reasons[0])}</span>
+        <div class="why">${esc(sp.why)}<span class="src">📖 ${esc(sp.src)}</span></div>
+      </div>`;
+    }).join("")}
+    <button class="go" id="btnNext">${last ? "לגג: סיום הסיור" : "לתחנה הבאה"}</button>`;
+  pinJump(st);
+  $("btnNext").onclick = () => { S.at++; save(); render(); window.scrollTo(0, 0); };
+}
+
+function drawFinish(tot) {
+  const worst = ST.map((s) => ({ s, sc: tot.per[s.id] })).sort((a, b) => a.sc.pts / a.s.spots.length - b.sc.pts / b.s.spots.length)[0];
+  $("stage").innerHTML = `<div class="sum">סיימתם את הסיור עם <b>${tot.pts}</b> מתוך ${M.maxPoints()} נקודות.<br>
+      ${tot.exact} הכרעות מדויקות, ${tot.verdict} פסילות עם סיבה אחרת, ${tot.wrong} טעויות${tot.falseFail ? `, מתוכן ${tot.falseFail} נקודות תקינות שנפסלו` : ""}.</div>
+    <table class="fin">${ST.map((s, i) => `<tr><td>${i + 1}. ${esc(s.title)}</td><td class="n">${tot.per[s.id].pts} / ${s.spots.length * G.meta.points.exact}</td></tr>`).join("")}</table>
+    ${worst && worst.sc.pts < worst.s.spots.length * G.meta.points.exact ? `<div class="sum" style="font-size:15px">הכי כדאי לחזור אל: <b style="font-size:17px">${esc(worst.s.title)}</b></div>` : ""}
+    <button class="go" id="btnAgain">סיור נוסף, עם סדר סיבות אחר</button>`;
+  $("btnAgain").onclick = () => { S = fresh(); S.started = true; save(); render(); window.scrollTo(0, 0); };
+}
+
+render();
+</script>
+</body>
+</html>

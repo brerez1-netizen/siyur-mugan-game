@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>סיור בבניין המוגן - מסך המרצה</title>
+<link rel="stylesheet" href="css/common.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);height:100vh;overflow:hidden;font-family:"Segoe UI",Arial,sans-serif;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;gap:18px;padding:10px 22px;background:var(--panel);border-bottom:1px solid var(--line);flex:none}
+  .brand{font-size:22px;font-weight:800;color:var(--accent)}
+  .crumb{font-size:17px;color:var(--dim)}
+  .sp{flex:1}
+  .live{font-size:17px;color:var(--dim)} .live b{color:var(--txt);font-variant-numeric:tabular-nums}
+  main{flex:1;min-height:0;display:flex}
+  section{flex:1;min-height:0}
+
+  /* לובי */
+  #lobby{display:flex;align-items:center;justify-content:center;gap:56px;padding:30px}
+  .joinbox{text-align:center}
+  .joinbox h1{font-size:44px;color:var(--accent);margin-bottom:6px}
+  .joinbox p{font-size:19px;color:var(--dim);margin-bottom:18px;line-height:1.5}
+  #qr{background:#fff;padding:14px;border-radius:14px;display:inline-block}
+  #qr canvas{display:block}
+  .url{margin-top:12px;font-size:17px;color:var(--dim);direction:ltr}
+  .roster{flex:1;max-width:620px}
+  .roster h2{font-size:22px;margin-bottom:12px;color:var(--dim)}
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{padding:8px 16px;border-radius:999px;font-size:19px;font-weight:700;color:#0b0f10;animation:pop .3s ease-out}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+  @media (prefers-reduced-motion:reduce){.chip{animation:none}}
+  .howto{margin-top:22px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;font-size:16px;line-height:1.75;color:#cfd6dd}
+  .howto b{color:var(--txt)}
+
+  /* סיור: חתך הבניין */
+  .split{display:grid;grid-template-columns:minmax(420px,44%) 1fr;gap:22px;padding:16px 22px;height:100%}
+  .split > div{min-height:0;overflow-y:auto}
+  .bld{display:flex;flex-direction:column;gap:6px;height:100%}
+  .band{flex:1;min-height:52px;display:flex;align-items:center;gap:14px;padding:6px 14px;border-radius:8px;
+    background:linear-gradient(90deg,#252c35,#1e242c);border:1px solid var(--line);position:relative}
+  .band.roof{background:transparent;border-style:dashed;flex:.8}
+  .band.kidmi{margin-bottom:10px;border-color:#5a4a26}
+  .band .nm{width:160px;flex:none}
+  .band .nm .f{font-size:13px;color:var(--accent);font-weight:800}
+  .band .nm .t{font-size:16px;font-weight:700;line-height:1.25}
+  .band .tok{display:flex;flex-wrap:wrap;gap:6px}
+  .tk{padding:4px 11px;border-radius:999px;font-size:15px;font-weight:800;color:#0b0f10;transition:transform .4s}
+  .tk.sub{outline:2px dashed #fff;outline-offset:2px}
+
+  table.rank{width:100%;border-collapse:separate;border-spacing:0 6px;font-size:19px}
+  .rank th{color:var(--dim);font-size:14px;font-weight:600;padding:2px 10px;text-align:start}
+  .rank td{padding:9px 10px;background:var(--panel)}
+  .rank td:first-child{border-radius:0 10px 10px 0;font-weight:800;width:42px;text-align:center}
+  .rank td:last-child{border-radius:10px 0 0 10px}
+  .rank td.num{font-variant-numeric:tabular-nums;font-weight:800;text-align:end}
+  .dot{display:inline-block;width:14px;height:14px;border-radius:50%;margin-inline-end:9px;vertical-align:-1px}
+  .mini{display:flex;gap:3px}
+  .mini i{width:18px;height:10px;border-radius:3px;background:var(--line)}
+  .mini i.d{background:var(--accent)} .mini i.s{background:#7d6a3b}
+
+  /* פתרון */
+  .rv{display:grid;grid-template-columns:minmax(460px,52%) 1fr;gap:20px;padding:14px 22px;height:100%}
+  .rv > div{min-height:0;overflow-y:auto}
+  .rv .sthd .f{font-size:14px;color:var(--accent);font-weight:800}
+  .rv .sthd .t{font-size:30px;font-weight:800;margin:2px 0 4px}
+  .rv .sthd .i{font-size:17px;color:var(--dim);line-height:1.5;margin-bottom:10px}
+  .spots{display:flex;flex-direction:column;gap:10px}
+  .spots .spot .dt{font-size:17px}
+  .spots .spot .why{font-size:16px}
+  .stat{font-size:13.5px;color:var(--dim);margin-top:6px}
+  .stat b{font-variant-numeric:tabular-nums}
+
+  /* סיום */
+  #finish{overflow-y:auto;padding:22px 34px}
+  #finish h1{font-size:36px;color:var(--accent);margin-bottom:16px;text-align:center}
+  table.tot{width:100%;border-collapse:collapse;font-size:19px}
+  .tot th,.tot td{padding:9px 12px;text-align:start;border-bottom:1px solid var(--line)}
+  .tot th{color:var(--dim);font-size:14px;font-weight:600}
+  .tot td.num{font-variant-numeric:tabular-nums;text-align:end}
+  .awards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:22px}
+  .award{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px;display:flex;gap:13px;align-items:center}
+  .award .ic{font-size:30px;flex:none}
+  .award .tt{font-size:18px;font-weight:700}
+  .award .ds{font-size:13.5px;color:var(--dim);margin-top:2px}
+  .award .wn{font-size:17px;font-weight:800;margin-top:3px}
+
+  .ctl{flex:none;display:flex;gap:10px;align-items:center;padding:10px 22px;background:var(--panel);border-top:1px solid var(--line)}
+  button{font-family:inherit;font-size:17px;font-weight:700;padding:10px 22px;border:none;border-radius:9px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+  button.ghost{background:var(--panel2);color:var(--txt);border:1px solid var(--line)}
+  button.danger{background:#3a1c1e;color:#ff9ea1;border:1px solid #5c2b2e}
+  .hint{font-size:15px;color:var(--dim)}
+  .nocfg{margin:auto;text-align:center;font-size:20px;line-height:1.7;color:var(--dim)}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">סיור בבניין המוגן</span>
+  <span class="crumb" id="crumb">לובי</span>
+  <span class="sp"></span>
+  <span class="live" id="live"></span>
+</header>
+
+<main>
+  <section id="lobby">
+    <div class="joinbox">
+      <h1>סורקים ומצטרפים</h1>
+      <p>תחיקת הבנייה · שיעור 18 · מרחבים מוגנים<br>טלפון אחד לכל קבוצה</p>
+      <div id="qr"></div>
+      <div class="url" id="joinurl"></div>
+    </div>
+    <div class="roster">
+      <h2>קבוצות (<span id="cnt">0</span>)</h2>
+      <div class="chips" id="chips"></div>
+      <div class="howto">
+        אתם פקחים של פיקוד העורף, ועולים בבניין אחד <b>קומה אחרי קומה</b>: קומת העמודים, מרפאה,
+        משרדים, קומת מגורים עם ממ"ק, דירה עם ממ"ד, ולבסוף אותה דירה ביישוב קדמי.<br>
+        בכל תחנה כמה נקודות ממוספרות. בכל אחת מכריעים: <b>עוברת, או נפסלת ובגלל מה</b>.<br>
+        הכרעה וסיבה נכונות: 10 נקודות. זיהיתם פסילה עם סיבה אחרת: 4. כל התשובות בפרק 24 בספר.
+      </div>
+    </div>
+  </section>
+
+  <section id="tourv" class="hidden">
+    <div class="split">
+      <div><div class="bld" id="bld"></div></div>
+      <div><table class="rank" id="rank"></table></div>
+    </div>
+  </section>
+
+  <section id="reviewv" class="hidden">
+    <div class="rv">
+      <div id="rvFig"></div>
+      <div id="rvSpots"></div>
+    </div>
+  </section>
+
+  <section id="finish" class="hidden">
+    <h1>סיור בבניין המוגן: הטבלה</h1>
+    <table class="tot" id="tot"></table>
+    <div class="awards" id="awards"></div>
+  </section>
+</main>
+
+<div class="ctl">
+  <button id="btnStart">פתיחת הסיור</button>
+  <button id="btnEnd" class="hidden">סגירת הסיור ומעבר לפתרון</button>
+  <button id="btnPrev" class="ghost hidden">התחנה הקודמת</button>
+  <button id="btnNext" class="hidden">התחנה הבאה</button>
+  <span class="sp"></span>
+  <span class="hint" id="hint"></span>
+  <button id="btnReset" class="danger">איפוס עמוק</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/gameData.js"></script>
+<script src="js/ui.js"></script>
+<script>
+/* =====================================================================
+   מסך המרצה. לא בודק תשובות בזמן הסיור, רק מציג: חתך הבניין עם הקבוצות
+   בקומות, טבלת ניקוד חיה, פתרון תחנה אחרי תחנה, והטבלה והתארים בסוף.
+   ===================================================================== */
+const $ = (id) => document.getElementById(id);
+const M = window.MUGAN, G = window.gameData, ST = G.stations, esc = M.esc;
+
+if (!window.FIREBASE_CONFIG) {
+  document.querySelector("main").innerHTML = `<div class="nocfg">🔌<br>המשחק עוד לא מחובר ל-Firebase.<br>צריך למלא את js/config.js.</div>`;
+  throw new Error("missing FIREBASE_CONFIG");
+}
+firebase.initializeApp(window.FIREBASE_CONFIG);
+const db = firebase.database();
+const TS = firebase.database.ServerValue.TIMESTAMP;
+let offset = 0;
+db.ref(".info/serverTimeOffset").on("value", (s) => { offset = s.val() || 0; });
+const now = () => Date.now() + offset;
+
+let teams = {}, game = { state: "lobby" };
+
+const joinUrl = location.href.replace(/[?#].*$/, "").replace(/index\.html$/, "").replace(/\/?$/, "/") + "play.html";
+$("joinurl").textContent = joinUrl;
+(function () { const cv = document.createElement("canvas"); $("qr").appendChild(cv); new QRious({ element: cv, value: joinUrl, size: 290, level: "M" }); })();
+
+db.ref("teams").on("value", (s) => { teams = s.val() || {}; paint(); });
+db.ref("game").on("value", (s) => { game = s.val() || { state: "lobby" }; paint(); });
+setInterval(() => { if (game.state === "tour") paintLive(); }, 1000);
+
+const fmt = (sec) => { if (!isFinite(sec)) return "-"; sec = Math.max(0, Math.round(sec)); return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0"); };
+const tourTime = (t) => t.finishedAt && game.startedAt ? (t.finishedAt - game.startedAt) / 1000 : Infinity;
+
+function rows() {
+  return Object.entries(teams).map(([id, t]) => ({ id, t, sc: M.totalScore(t.ans), at: Math.min(t.at || 0, ST.length), time: tourTime(t) }))
+    .sort((a, b) => b.sc.pts - a.sc.pts || a.time - b.time || b.at - a.at);
+}
+
+/* ---------------------- ציור ---------------------- */
+let drawnReview = null;
+function paint() {
+  const st = game.state || "lobby";
+  ["lobby", "tourv", "reviewv", "finish"].forEach((id) => $(id).classList.add("hidden"));
+  $({ lobby: "lobby", tour: "tourv", review: "reviewv", finished: "finish" }[st] || "lobby").classList.remove("hidden");
+  $("btnStart").classList.toggle("hidden", st !== "lobby");
+  $("btnEnd").classList.toggle("hidden", st !== "tour");
+  $("btnPrev").classList.toggle("hidden", st !== "review" || !game.review);
+  $("btnNext").classList.toggle("hidden", st !== "review");
+  if (st === "review") $("btnNext").textContent = game.review + 1 < ST.length ? "התחנה הבאה" : "לטבלה ולתארים";
+
+  const list = Object.values(teams);
+  $("cnt").textContent = list.length;
+  $("chips").innerHTML = list.map((t) => `<span class="chip" style="background:${t.color}">${esc(t.name)}</span>`).join("");
+
+  if (st === "lobby") {
+    $("crumb").textContent = "לובי"; $("live").textContent = "";
+    $("hint").textContent = list.length ? "אפשר לפתוח" : "ממתין לקבוצות";
+    drawnReview = null;
+    return;
+  }
+  $("hint").textContent = "";
+  if (st === "tour") { $("crumb").textContent = "הסיור בעיצומו"; paintBuilding(); paintLive(); return; }
+  if (st === "review") { $("crumb").textContent = `פתרון · תחנה ${game.review + 1} מתוך ${ST.length}`; $("live").textContent = ""; renderReview(game.review); return; }
+  $("crumb").textContent = "סיכום"; $("live").textContent = ""; renderFinish();
+}
+
+function paintBuilding() {
+  const byAt = {};
+  Object.values(teams).forEach((t) => { const a = Math.min(t.at || 0, ST.length); (byAt[a] = byAt[a] || []).push(t); });
+  const tok = (arr) => (arr || []).map((t) => {
+    const cur = ST[t.at || 0], sub = cur && t.ans && t.ans[cur.id];
+    return `<span class="tk ${sub ? "sub" : ""}" style="background:${t.color}" title="${sub ? "הגישו, קוראים את הפתרון" : ""}">${esc(t.name)}</span>`;
+  }).join("");
+  // מלמעלה למטה: גג, יישוב קדמי, ואז קומות הבניין מהגבוהה לנמוכה
+  const bands = [`<div class="band roof"><div class="nm"><div class="f">🏁</div><div class="t">סיימו את הסיור</div></div><div class="tok">${tok(byAt[ST.length])}</div></div>`];
+  for (let i = ST.length - 1; i >= 0; i--) {
+    bands.push(`<div class="band ${ST[i].id === "kidmi" ? "kidmi" : ""}"><div class="nm"><div class="f">${i + 1} · ${esc(ST[i].floor)}</div><div class="t">${esc(ST[i].title)}</div></div><div class="tok">${tok(byAt[i])}</div></div>`);
+  }
+  $("bld").innerHTML = bands.join("");
+}
+
+function paintLive() {
+  const rs = rows();
+  const done = rs.filter((r) => r.at >= ST.length).length;
+  $("live").innerHTML = `סיימו <b>${done}</b> מתוך <b>${rs.length}</b> · <b>${fmt((now() - (game.startedAt || now())) / 1000)}</b>`;
+  $("rank").innerHTML = `<tr><th>#</th><th>קבוצה</th><th>תחנות</th><th style="text-align:end">נקודות</th><th style="text-align:end">זמן</th></tr>` +
+    rs.map((r, i) => `<tr><td>${i + 1}</td><td><span class="dot" style="background:${r.t.color}"></span>${esc(r.t.name)}</td>
+      <td><div class="mini">${ST.map((s, k) => `<i class="${r.t.ans && r.t.ans[s.id] ? "d" : k === r.at ? "s" : ""}"></i>`).join("")}</div></td>
+      <td class="num">${r.sc.pts}</td><td class="num">${r.at >= ST.length ? fmt(r.time) : ""}</td></tr>`).join("");
+  paintBuilding();
+}
+
+function renderReview(i) {
+  const st = ST[i];
+  if (!st) return;
+  const marks = {};
+  st.spots.forEach((sp) => { marks[sp.id] = sp.verdict; });
+  const tl = Object.values(teams);
+  $("rvFig").innerHTML = `<div class="sthd"><div class="f">${esc(st.floor)}</div><div class="t">${esc(st.title)}</div><div class="i">${esc(st.intro)}</div></div>${M.figureHTML(st, marks)}`;
+  $("rvSpots").innerHTML = `<div class="spots">${st.spots.map((sp, n) => {
+    const c = { exact: 0, verdict: 0, wrong: 0 };
+    tl.forEach((t) => { const k = t.ans && t.ans[st.id] && t.ans[st.id][sp.id]; const g = M.grade(sp, k).kind; if (g in c) c[g]++; else c.wrong++; });
+    return `<div class="spot ${sp.verdict === "pass" ? "ok" : "bad"}">
+      <div class="hd"><span class="no">${n + 1}</span><span class="lb">${esc(sp.label)}</span></div>
+      <div class="dt">${esc(sp.data)}</div>
+      <span class="verdict ${sp.verdict}">${sp.verdict === "pass" ? "עובר" : "נפסל: " + esc(sp.reasons[0])}</span>
+      <div class="why">${esc(sp.why)}<span class="src">📖 ${esc(sp.src)}</span></div>
+      ${tl.length ? `<div class="stat">בכיתה: <b>${c.exact}</b> מדויק${sp.verdict === "fail" ? ` · <b>${c.verdict}</b> פסלו מסיבה אחרת` : ""} · <b>${c.wrong}</b> טעו</div>` : ""}
+    </div>`;
+  }).join("")}</div>`;
+  if (drawnReview !== i) { $("rvSpots").scrollTop = 0; drawnReview = i; }
+}
+
+/* ---------------------- סיכום ---------------------- */
+function assignAwards(rs) {
+  const taken = new Set();
+  const fin = rs.filter((r) => r.at >= ST.length);
+  const best = (arr, key) => arr.filter((x) => !taken.has(x.id)).sort(key)[0];
+  const byPts = (a, b) => b.sc.pts - a.sc.pts || a.time - b.time;
+  const pickers = {
+    first: () => best(rs, byPts),
+    second: () => best(rs, byPts),
+    third: () => best(rs, byPts),
+    exact: () => best(fin, (a, b) => a.sc.verdict - b.sc.verdict || byPts(a, b)),
+    noFalse: () => best(fin.filter((r) => r.sc.falseFail === 0), byPts),
+    mamad: () => best(rs.filter((r) => r.t.ans && r.t.ans.mamad), (a, b) => b.sc.per.mamad.pts - a.sc.per.mamad.pts || byPts(a, b)),
+    fast: () => best(fin, (a, b) => a.time - b.time),
+  };
+  const ids = rs.length < 4 ? ["first", "second", "third"] : G.awards.map((a) => a.id);
+  const out = [];
+  G.awards.filter((a) => ids.includes(a.id)).forEach((a) => {
+    const w = pickers[a.id] && pickers[a.id]();
+    if (w) { taken.add(w.id); out.push({ a, w }); }
+  });
+  return out;
+}
+
+function renderFinish() {
+  const rs = rows();
+  $("tot").innerHTML = `<tr><th>#</th><th>קבוצה</th>${ST.map((s, i) => `<th>${i + 1}</th>`).join("")}<th>נקודות</th><th>מדויקות</th><th>זמן</th></tr>` +
+    rs.map((r, n) => `<tr><td class="num">${n + 1}</td><td><span class="dot" style="background:${r.t.color}"></span>${esc(r.t.name)}</td>
+      ${ST.map((s) => `<td class="num">${r.t.ans && r.t.ans[s.id] ? r.sc.per[s.id].pts : "-"}</td>`).join("")}
+      <td class="num"><b>${r.sc.pts}</b> / ${M.maxPoints()}</td><td class="num">${r.sc.exact}</td><td class="num">${r.at >= ST.length ? fmt(r.time) : "לא סיימו"}</td></tr>`).join("");
+  $("awards").innerHTML = assignAwards(rs).map(({ a, w }) => `<div class="award"><span class="ic">${a.icon}</span>
+    <span><div class="tt">${a.title}</div>${a.desc ? `<div class="ds">${esc(a.desc)}</div>` : ""}
+    <div class="wn" style="color:${w.t.color}">${esc(w.t.name)}</div></span></div>`).join("");
+}
+
+/* ---------------------- פקדים ---------------------- */
+$("btnStart").onclick = () => {
+  if (!Object.keys(teams).length) { $("hint").textContent = "אף קבוצה עוד לא הצטרפה"; return; }
+  db.ref("game").set({ state: "tour", startedAt: TS });
+};
+$("btnEnd").onclick = () => {
+  const open = rows().filter((r) => r.at < ST.length).length;
+  if (open && !confirm(`${open} קבוצות עוד לא סיימו. נקודות שלא ענו עליהן יקבלו אפס. לסגור את הסיור?`)) return;
+  db.ref("game").update({ state: "review", review: 0, endedAt: TS });
+};
+$("btnPrev").onclick = () => { if (game.review > 0) db.ref("game/review").set(game.review - 1); };
+$("btnNext").onclick = () => {
+  if (game.review + 1 < ST.length) db.ref("game/review").set(game.review + 1);
+  else db.ref("game").update({ state: "finished", review: null });
+};
+$("btnReset").onclick = () => {
+  if (!confirm("איפוס עמוק ימחק את כל הקבוצות ואת כל התשובות של הכיתה הנוכחית. להמשיך?")) return;
+  db.ref().set({ game: { state: "lobby" } });
+};
+</script>
+</body>
+</html>
