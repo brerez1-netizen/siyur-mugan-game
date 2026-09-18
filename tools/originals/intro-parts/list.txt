@@ -1,0 +1,3 @@
+file 'D:/קלוד קוד my-workspace/תחיקת-הבניה-משחקים/18_siyur-mugan-game/tools/originals/intro-parts/part0.mp4'
+file 'D:/קלוד קוד my-workspace/תחיקת-הבניה-משחקים/18_siyur-mugan-game/tools/originals/intro-parts/part1.mp4'
+file 'D:/קלוד קוד my-workspace/תחיקת-הבניה-משחקים/18_siyur-mugan-game/tools/originals/intro-parts/part2.mp4'
