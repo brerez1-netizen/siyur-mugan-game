@@ -12,12 +12,14 @@
     return () => { h += 0x6d2b79f5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   }
 
-  // "עובר" תמיד ראשון. סיבות הפסילה אחריו בסדר מעורבב.
+  // כל האפשרויות מעורבבות, "עובר" בכללן: אחרת בכל נקודה תקינה התשובה הנכונה
+  // הייתה יושבת בכפתור הראשון, וזה נלמד מהר יותר מהחומר.
   function optionsFor(spot, seed) {
     const r = rng(seed + "|" + spot.id);
-    const reasons = spot.reasons.map((text, i) => ({ key: "r" + i, text }));
-    for (let i = reasons.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [reasons[i], reasons[j]] = [reasons[j], reasons[i]]; }
-    return [{ key: "pass", text: "עובר את פיקוד העורף" }].concat(reasons);
+    const opts = [{ key: "pass", text: "עובר את פיקוד העורף" }]
+      .concat(spot.reasons.map((text, i) => ({ key: "r" + i, text })));
+    for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
+    return opts;
   }
 
   const correctKey = (spot) => (spot.verdict === "pass" ? "pass" : "r0");

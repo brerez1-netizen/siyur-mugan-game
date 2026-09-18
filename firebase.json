@@ -1,0 +1,5 @@
+{
+  "database": [
+    { "instance": "erez-mugan-game-default-rtdb", "rules": "database.rules.json" }
+  ]
+}
