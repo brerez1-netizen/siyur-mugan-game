@@ -169,7 +169,7 @@ function drawFinish(tot) {
   const worst = ST.map((s) => ({ s, sc: tot.per[s.id] })).sort((a, b) => a.sc.pts / a.s.spots.length - b.sc.pts / b.s.spots.length)[0];
   $("stage").innerHTML = `<div class="sum">סיימתם את הסיור עם <b>${tot.pts}</b> מתוך ${M.maxPoints()} נקודות.<br>
       ${tot.exact} הכרעות מדויקות, ${tot.verdict} פסילות עם סיבה אחרת, ${tot.wrong} טעויות${tot.falseFail ? `, מתוכן ${tot.falseFail} נקודות תקינות שנפסלו` : ""}.</div>
-    <table class="fin">${ST.map((s, i) => `<tr><td>${i + 1}. ${esc(s.title)}</td><td class="n">${tot.per[s.id].pts} / ${s.spots.length * G.meta.points.exact}</td></tr>`).join("")}</table>
+    <table class="fin">${ST.map((s, i) => `<tr><td>${i + 1}. ${esc(s.title)}</td><td class="n">${tot.per[s.id].pts} מתוך ${s.spots.length * G.meta.points.exact}</td></tr>`).join("")}</table>
     ${worst && worst.sc.pts < worst.s.spots.length * G.meta.points.exact ? `<div class="sum" style="font-size:15px">הכי כדאי לחזור אל: <b style="font-size:17px">${esc(worst.s.title)}</b></div>` : ""}
     <button class="go" id="btnAgain">סיור נוסף, עם סדר סיבות אחר</button>`;
   $("btnAgain").onclick = () => { S = fresh(); S.started = true; save(); render(); window.scrollTo(0, 0); };

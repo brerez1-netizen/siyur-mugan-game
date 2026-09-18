@@ -548,7 +548,7 @@ window.gameData = {
     { id: "first", icon: "🥇", title: "פקחי פיקוד העורף" },
     { id: "second", icon: "🥈", title: "מקום שני" },
     { id: "third", icon: "🥉", title: "מקום שלישי" },
-    { id: "exact", icon: "🔎", title: "עין לסעיף", desc: "הכי מעט פסילות עם סיבה שגויה" },
+    { id: "exact", icon: "🔎", title: "עין לסעיף", desc: "הכי הרבה הכרעות מדויקות" },
     { id: "noFalse", icon: "🛡️", title: "בלי פסילת שווא", desc: "לא פסלו אף נקודה תקינה" },
     { id: "mamad", icon: "🚪", title: "מומחי הממ\"ד", desc: "הכי הרבה נקודות בתחנת הממ\"ד" },
     { id: "fast", icon: "⏱️", title: "הראשונים על הגג", desc: "סיימו את הסיור ראשונים" },

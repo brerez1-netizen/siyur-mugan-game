@@ -281,7 +281,7 @@ function assignAwards(rs) {
     first: () => best(rs, byPts),
     second: () => best(rs, byPts),
     third: () => best(rs, byPts),
-    exact: () => best(fin, (a, b) => a.sc.verdict - b.sc.verdict || byPts(a, b)),
+    exact: () => best(fin, (a, b) => b.sc.exact - a.sc.exact || byPts(a, b)),
     noFalse: () => best(fin.filter((r) => r.sc.falseFail === 0), byPts),
     mamad: () => best(rs.filter((r) => r.t.ans && r.t.ans.mamad), (a, b) => b.sc.per.mamad.pts - a.sc.per.mamad.pts || byPts(a, b)),
     fast: () => best(fin, (a, b) => a.time - b.time),
@@ -300,7 +300,7 @@ function renderFinish() {
   $("tot").innerHTML = `<tr><th>#</th><th>קבוצה</th>${ST.map((s, i) => `<th>${i + 1}</th>`).join("")}<th>נקודות</th><th>מדויקות</th><th>זמן</th></tr>` +
     rs.map((r, n) => `<tr><td class="num">${n + 1}</td><td><span class="dot" style="background:${r.t.color}"></span>${esc(r.t.name)}</td>
       ${ST.map((s) => `<td class="num">${r.t.ans && r.t.ans[s.id] ? r.sc.per[s.id].pts : "-"}</td>`).join("")}
-      <td class="num"><b>${r.sc.pts}</b> / ${M.maxPoints()}</td><td class="num">${r.sc.exact}</td><td class="num">${r.at >= ST.length ? fmt(r.time) : "לא סיימו"}</td></tr>`).join("");
+      <td class="num"><b>${r.sc.pts}</b> מתוך ${M.maxPoints()}</td><td class="num">${r.sc.exact}</td><td class="num">${r.at >= ST.length ? fmt(r.time) : "לא סיימו"}</td></tr>`).join("");
   $("awards").innerHTML = assignAwards(rs).map(({ a, w }) => `<div class="award"><span class="ic">${a.icon}</span>
     <span><div class="tt">${a.title}</div>${a.desc ? `<div class="ds">${esc(a.desc)}</div>` : ""}
     <div class="wn" style="color:${w.t.color}">${esc(w.t.name)}</div></span></div>`).join("");
