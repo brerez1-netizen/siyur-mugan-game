@@ -230,7 +230,7 @@ function drawStation(st) {
     <div class="sthd"><div class="fr">${esc(st.floor)}</div><div class="tt">${esc(st.title)}</div><div class="in">${esc(st.intro)}</div></div>
     <div class="figwrap">${M.figureHTML(st, marks)}</div>
     ${st.spots.map((sp, i) => `<div class="spot ${focus === sp.id ? "focus" : ""}" id="sp-${sp.id}">
-        <div class="hd"><span class="no">${i + 1}</span><span class="lb">${esc(sp.label)}</span></div>
+        <div class="hd"><span class="no">${i + 1}</span><span class="lb">${esc(sp.label)}</span>${sp.x == null ? '<span class="nopin">בלי סימון באיור</span>' : ""}</div>
         <div class="dt">${esc(sp.data)}</div>
         <div class="opts">${M.optionsFor(sp, seed).map((o) =>
           `<button class="opt ${o.key === "pass" ? "pass" : ""} ${draft[sp.id] === o.key ? "sel" : ""}" data-sp="${sp.id}" data-k="${o.key}">${o.key === "pass" ? "✓ " : "✗ נפסל: "}${esc(o.text)}</button>`).join("")}</div>
@@ -277,7 +277,7 @@ function drawResult(st, reviewing) {
     ${st.spots.map((sp, i) => {
       const k = ans[sp.id], g = M.grade(sp, k), cls = k ? M.markFor(sp, k) : "bad";
       return `<div class="spot ${cls}" id="sp-${sp.id}">
-        <div class="hd"><span class="no">${i + 1}</span><span class="lb">${esc(sp.label)}</span></div>
+        <div class="hd"><span class="no">${i + 1}</span><span class="lb">${esc(sp.label)}</span>${sp.x == null ? '<span class="nopin">בלי סימון באיור</span>' : ""}</div>
         <div class="dt">${esc(sp.data)}</div>
         <div class="mine"><span class="gain ${cls}">+${g.pts}</span>ענינו: <b>${k ? esc(optText(sp, k)) : "לא ענינו"}</b></div>
         <span class="verdict ${sp.verdict}">${sp.verdict === "pass" ? "עובר" : "נפסל: " + esc(sp.reasons[0])}</span>

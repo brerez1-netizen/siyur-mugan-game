@@ -261,7 +261,7 @@ function renderReview(i) {
     const c = { exact: 0, verdict: 0, wrong: 0 };
     tl.forEach((t) => { const k = t.ans && t.ans[st.id] && t.ans[st.id][sp.id]; const g = M.grade(sp, k).kind; if (g in c) c[g]++; else c.wrong++; });
     return `<div class="spot ${sp.verdict === "pass" ? "ok" : "bad"}">
-      <div class="hd"><span class="no">${n + 1}</span><span class="lb">${esc(sp.label)}</span></div>
+      <div class="hd"><span class="no">${n + 1}</span><span class="lb">${esc(sp.label)}</span>${sp.x == null ? '<span class="nopin">בלי סימון באיור</span>' : ""}</div>
       <div class="dt">${esc(sp.data)}</div>
       <span class="verdict ${sp.verdict}">${sp.verdict === "pass" ? "עובר" : "נפסל: " + esc(sp.reasons[0])}</span>
       <div class="why">${esc(sp.why)}<span class="src">📖 ${esc(sp.src)}</span></div>
